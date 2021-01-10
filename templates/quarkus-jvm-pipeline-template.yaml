@@ -190,7 +190,7 @@ objects:
         - name: app-name
           value: ${APP_NAME}
         - name: git-repo-url
-          value: "$(body.repository.git_http_url)"
+          value: "$(body.repository.git_ssh_url)"
         - name: config-git-repo-url
           value: ${GIT_REPOSITORY}
         - name: config-git-branch

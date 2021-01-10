@@ -119,7 +119,7 @@ Create a Secret for your git repo:
 apiVersion: v1
 kind: Secret
 metadata:
-    name: git-secret
+    name: git-ssh-secret
     annotations:
     tekton.dev/git-0: github.com
 type: kubernetes.io/ssh-auth
@@ -131,16 +131,17 @@ data:
 Or, use SSH access:
 
 ```bash
-ssh-keygen -t rsa -f ~/.ssh/git.id_rsa -N ''
+mkdir ~/git-ssh
+ssh-keygen -t ed25519 -f ~/git-ssh/git.id_ed25519 -N ''
 
-GIT_HOST=github.com
-SSH_KEY=$(cat ~/.ssh/git.id_rsa | base64 -w0 )
+GIT_HOST=gitlab.com
+SSH_KEY=$(cat ~/git-ssh/git.id_ed25519 | base64 -w0 )
 KNOWN_HOSTS=$(ssh-keyscan ${GIT_HOST} | base64 -w0 )
-cat << EOF > git-secret.yml
+cat << EOF > git-ssh-secret.yml
 apiVersion: v1
 kind: Secret
 metadata:
-    name: git-secret
+    name: git-ssh-secret
     annotations:
       tekton.dev/git-0: ${GIT_HOST}
 type: kubernetes.io/ssh-auth
@@ -149,9 +150,9 @@ data:
     known_hosts: ${KNOWN_HOSTS}
 EOF
 
-oc apply -f git-secret.yml
-rm -f git-secret.yml
-oc patch sa pipeline --type merge --patch '{"secrets":[{"name":"git-secret"}]}'
+oc apply -f git-ssh-secret.yml
+rm -f git-ssh-secret.yml
+oc patch sa pipeline --type merge --patch '{"secrets":[{"name":"git-ssh-secret"}]}'
 ```
 
 ### If you need to clean up lots of image pieces and parts that are laying around, the do this:
