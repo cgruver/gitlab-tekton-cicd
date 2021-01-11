@@ -105,11 +105,8 @@ NAMESPACE=
 PROJECT_NAME=
 GIT_REPOSITORY=
 GIT_BRANCH=
-CONFIG_GIT_REPOSITORY=
-CONFIG_GIT_BRANCH=
-CONFIG_GIT_PATH=
 
-oc process openshift//quarkus-jvm-pipeline-dev -p APP_NAME=${PROJECT_NAME} -p GIT_REPOSITORY=${GIT_REPOSITORY} -p GIT_BRANCH=${GIT_BRANCH} | oc apply -n ${NAMESPACE} -f -
+oc process openshift//quarkus-jvm-pipeline-gitlab-dev -p APP_NAME=${PROJECT_NAME} -p GIT_REPOSITORY=${GIT_REPOSITORY} -p GIT_BRANCH=${GIT_BRANCH} | oc apply -n ${NAMESPACE} -f -
 ```
 
 Create a Secret for your git repo:
@@ -118,7 +115,7 @@ Create a Secret for your git repo:
 mkdir ~/git-ssh
 ssh-keygen -t ed25519 -f ~/git-ssh/git.id_ed25519 -N ''
 
-GIT_HOST=gitlab.com
+GIT_HOST=gitlab.your.domain.org
 SSH_KEY=$(cat ~/git-ssh/git.id_ed25519 | base64 -w0 )
 KNOWN_HOSTS=$(ssh-keyscan ${GIT_HOST} | base64 -w0 )
 cat << EOF > git-ssh-secret.yml
