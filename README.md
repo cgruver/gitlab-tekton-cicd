@@ -86,7 +86,8 @@ Add all of the maven proxies that you created to your new maven group.
 MAVEN_GROUP=<The Maven Group You Just Created>
 NEXUS_URL=https://nexus.your.domain.com:8443/repository
 oc process --local -f namespace-config/namespace-configuration-maven-mirror-template.yaml -p MVN_MIRROR_ID=${MAVEN_GROUP} -p MVN_MIRROR_NAME=${MAVEN_GROUP} -p MVN_MIRROR_URL=${NEXUS_URL}/${MAVEN_GROUP} | oc apply -f -
-oc apply -f namespace-config/namespace-configuration-java-cloud-native.yaml 
+oc apply -f namespace-config/namespace-configuration-java-cloud-native.yaml
+oc apply -f namespace-config/namespace-configuration-okd-tekton.yaml
 
 oc apply -f templates -n openshift
 ```
@@ -96,7 +97,7 @@ oc apply -f templates -n openshift
 Label your namespace:
 
 ```bash
-oc label namespace my-namespace maven-mirror-config="" tekton-java-cloud-native=""
+oc label namespace my-library maven-mirror-config="" tekton-java-gitlab="" okd-tekton=""
 ```
 
 ```bash
@@ -108,27 +109,10 @@ CONFIG_GIT_REPOSITORY=
 CONFIG_GIT_BRANCH=
 CONFIG_GIT_PATH=
 
-oc process openshift//quarkus-jvm-pipeline-dev -p APP_NAME=${PROJECT_NAME} -p GIT_REPOSITORY=${GIT_REPOSITORY} -p GIT_BRANCH=${GIT_BRANCH} -p CONFIG_GIT_REPOSITORY=${CONFIG_GIT_REPOSITORY} -p CONFIG_GIT_BRANCH=${CONFIG_GIT_BRANCH} -p CONFIG_GIT_PATH=${CONFIG_GIT_PATH} | oc apply -n ${NAMESPACE} -f -
+oc process openshift//quarkus-jvm-pipeline-dev -p APP_NAME=${PROJECT_NAME} -p GIT_REPOSITORY=${GIT_REPOSITORY} -p GIT_BRANCH=${GIT_BRANCH} | oc apply -n ${NAMESPACE} -f -
 ```
-
-Generate a GitHub Personal Access Token
 
 Create a Secret for your git repo:
-
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-    name: git-ssh-secret
-    annotations:
-    tekton.dev/git-0: github.com
-type: kubernetes.io/ssh-auth
-data:
-    token: <GitHub Access Token>
-    secret: <A-Pass-Phrase-For-The-Repo-Web-Hook-Secret>
-```
-
-Or, use SSH access:
 
 ```bash
 mkdir ~/git-ssh
@@ -155,6 +139,7 @@ rm -f git-ssh-secret.yml
 oc patch sa pipeline --type merge --patch '{"secrets":[{"name":"git-ssh-secret"}]}'
 ```
 
+Upload `~/git-ssh/git.id_ed25519.pub` to your gitlab server as an SSH key for the service account that you want to access your code.
 ### If you need to clean up lots of image pieces and parts that are laying around, the do this:
 
 __Warning:__ This will delete all of the container images on your system.  It will also likely free up a LOT of disk space.
