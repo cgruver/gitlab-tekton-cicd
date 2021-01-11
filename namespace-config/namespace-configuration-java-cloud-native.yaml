@@ -320,8 +320,15 @@ spec:
           script: |
             echo -----------------------------------
             echo "Creating Webhook"
-            PROJECT_PATH=$(echo $(params.git-repo-url) | cut -d"/" -f4- | cut -d"." -f1 | sed "s|/|%2F|g")
-            API_URL=$(echo $(params.git-repo-url) | cut -d"/" -f-3)/api/v4/projects/${PROJECT_PATH}/hooks
+            TEST=$(echo $(params.git-repo-url) | cut -d'@' -f1)
+            if [[ $TEST == "git" ]]
+            then
+              PROJECT_PATH=$(echo $(params.git-repo-url) | cut -d":" -f2 | cut -d"." -f1 | sed "s|/|%2F|g")
+              API_URL=http://$(echo $(params.git-repo-url) | cut -d"@" -f2 | cut -d":" -f1):8181/api/v4/projects/${PROJECT_PATH}/hooks
+            else
+              PROJECT_PATH=$(echo $(params.git-repo-url) | cut -d"/" -f4- | cut -d"." -f1 | sed "s|/|%2F|g")
+              API_URL=$(echo $(params.git-repo-url) | cut -d"/" -f-3)/api/v4/projects/${PROJECT_PATH}/hooks
+            fi
             HOOK_URL=http://$(cat /workspace/hook-url)
             curl -X POST -H "PRIVATE-TOKEN: $(cat /var/secret/access-token)" -d "push_events=true" -d "push_events_branch_filter=$(params.git-branch)" -d "token=$(cat /var/secret/hook-token)" -d "url=${HOOK_URL}" -d "enable_ssl_verification=false" ${API_URL}
             echo -----------------------------------
