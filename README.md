@@ -1,19 +1,19 @@
 # Tekton Pipelines for Java Applications
+# Work In Progress: This documentation is incomplete
 
-This project provides an opinionated set of pipelines that allow development teams to set up CI/CD for their projects without maintaining pipeline boilerplate within their development code base.
+This lab exercise provides an opinionated set of pipelines that allow development teams to set up CI/CD for their projects without maintaining pipeline boilerplate within their development code base.
 
 The capabilities provided are achieved by taking advantage of OpenShift Templates exposed through the Catalog, and the Namespace Configuration Operator which synchronizes and maintains common artifacts across labeled namespaces.
 
-## Quarkus JVM
 
-## Quarkus Fast-JAR
+This lab exercise will require the following components: View each link for instructions
 
-## Quarkus Native
+1. Sonatype Nexus for your Maven Mirror and local build dependencies.
 
-## Spring Boot
+    [Install and Configure Nexus](Nexus_Config.md)
 
-# WIP: This documentation is incomplete
-
+1. A local GitLab instance.
+1. An OpenShift 4.6+ cluster.
 ## Installation:
 
 Create a maven group in your local maven nexus: homelab-central
