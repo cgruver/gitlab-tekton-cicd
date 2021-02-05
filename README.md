@@ -1,19 +1,19 @@
 # Tekton Pipelines for Java Applications
+# Work In Progress: This documentation is incomplete
 
-This project provides an opinionated set of pipelines that allow development teams to set up CI/CD for their projects without maintaining pipeline boilerplate within their development code base.
+This lab exercise provides an opinionated set of pipelines that allow development teams to set up CI/CD for their projects without maintaining pipeline boilerplate within their development code base.
 
 The capabilities provided are achieved by taking advantage of OpenShift Templates exposed through the Catalog, and the Namespace Configuration Operator which synchronizes and maintains common artifacts across labeled namespaces.
 
-## Quarkus JVM
 
-## Quarkus Fast-JAR
+This lab exercise will require the following components: View each link for instructions
 
-## Quarkus Native
+1. Sonatype Nexus for your Maven Mirror and local build dependencies.
 
-## Spring Boot
+    [Install and Configure Nexus](Nexus_Config.md)
 
-# WIP: This documentation is incomplete
-
+1. A local GitLab instance.
+1. An OpenShift 4.6+ cluster.
 ## Installation:
 
 Create a maven group in your local maven nexus: homelab-central
@@ -44,8 +44,8 @@ podman tag registry.access.redhat.com/ubi8/ubi-minimal:8.3 ${IMAGE_REGISTRY}/ope
 podman build -t ${IMAGE_REGISTRY}/openshift/jdk-11-app-runner:1.3.8 -f jdk-11-app-runner.Dockerfile .
 podman tag ${IMAGE_REGISTRY}/openshift/jdk-11-app-runner:1.3.8 ${IMAGE_REGISTRY}/openshift/jdk-11-app-runner:latest
 
-podman build -t ${IMAGE_REGISTRY}/openshift/maven-jdk-mandrel-builder:3.6.3-11-20.2 -f maven-jdk-mandrel-builder.Dockerfile .
-podman tag ${IMAGE_REGISTRY}/openshift/maven-jdk-mandrel-builder:3.6.3-11-20.2 ${IMAGE_REGISTRY}/openshift/maven-jdk-mandrel-builder:latest
+podman build -t ${IMAGE_REGISTRY}/openshift/maven-jdk-mandrel-builder:3.6.3-11-20.3 -f maven-jdk-mandrel-builder.Dockerfile .
+podman tag ${IMAGE_REGISTRY}/openshift/maven-jdk-mandrel-builder:3.6.3-11-20.3 ${IMAGE_REGISTRY}/openshift/maven-jdk-mandrel-builder:latest
 
 podman build -t ${IMAGE_REGISTRY}/openshift/buildah:nonroot -f buildah-nonroot.Dockerfile .
 
@@ -55,7 +55,7 @@ podman push ${IMAGE_REGISTRY}/openshift/ubi-minimal:8.3 --tls-verify=false
 podman push ${IMAGE_REGISTRY}/openshift/ubi-minimal:latest --tls-verify=false
 podman push ${IMAGE_REGISTRY}/openshift/jdk-11-app-runner:1.3.8 --tls-verify=false
 podman push ${IMAGE_REGISTRY}/openshift/jdk-11-app-runner:latest --tls-verify=false
-podman push ${IMAGE_REGISTRY}/openshift/maven-jdk-mandrel-builder:3.6.3-11-20.2 --tls-verify=false
+podman push ${IMAGE_REGISTRY}/openshift/maven-jdk-mandrel-builder:3.6.3-11-20.3 --tls-verify=false
 podman push ${IMAGE_REGISTRY}/openshift/maven-jdk-mandrel-builder:latest --tls-verify=false
 podman push ${IMAGE_REGISTRY}/openshift/buildah:nonroot --tls-verify=false
 
@@ -105,11 +105,8 @@ NAMESPACE=
 PROJECT_NAME=
 GIT_REPOSITORY=
 GIT_BRANCH=
-CONFIG_GIT_REPOSITORY=
-CONFIG_GIT_BRANCH=
-CONFIG_GIT_PATH=
 
-oc process openshift//quarkus-jvm-pipeline-dev -p APP_NAME=${PROJECT_NAME} -p GIT_REPOSITORY=${GIT_REPOSITORY} -p GIT_BRANCH=${GIT_BRANCH} | oc apply -n ${NAMESPACE} -f -
+oc process openshift//quarkus-jvm-pipeline-gitlab-dev -p APP_NAME=${PROJECT_NAME} -p GIT_REPOSITORY=${GIT_REPOSITORY} -p GIT_BRANCH=${GIT_BRANCH} | oc apply -n ${NAMESPACE} -f -
 ```
 
 Create a Secret for your git repo:
@@ -118,7 +115,7 @@ Create a Secret for your git repo:
 mkdir ~/git-ssh
 ssh-keygen -t ed25519 -f ~/git-ssh/git.id_ed25519 -N ''
 
-GIT_HOST=gitlab.com
+GIT_HOST=gitlab.your.domain.org
 SSH_KEY=$(cat ~/git-ssh/git.id_ed25519 | base64 -w0 )
 KNOWN_HOSTS=$(ssh-keyscan ${GIT_HOST} | base64 -w0 )
 cat << EOF > git-ssh-secret.yml
